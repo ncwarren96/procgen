@@ -1,0 +1,146 @@
+<html>
+<head>
+<script src="p5.min.js"></script>
+<script>
+"use strict";
+
+// number of alternative designs to consider
+// within a single generation
+const numAlternatives = 10;
+
+// controls amount of change in a single mutation
+const mutationAmount = 0.001;
+
+// other constants needed to represent designs
+const genesPerIndividual = 3;
+const paramsPerGene = 56;
+
+// remember the best design ever seen
+let bestDesign;
+let bestScore;
+
+// remember the current design
+// (best of the most recent generation)
+let currentDesign;
+let currentScore;
+
+// store the image we are trying to recreate
+let targetImage;
+
+
+function preload() {
+	targetImage = loadImage(ideal.src);
+}
+
+function setup() {
+    //colorMode(HSB)
+    pixelDensity(1);
+    createCanvas(
+		targetImage.width,
+		targetImage.height);
+
+    targetImage.loadPixels();
+
+    currentDesign = generate();
+    bestDesign = currentDesign;
+
+    currentScore = Number.NEGATIVE_INFINITY;
+    bestScore = currentScore;
+}
+
+function draw() {
+    evolve();
+    if (currentScore > bestScore) {
+        console.log("global improvement",
+				currentScore);
+        bestDesign = currentDesign;
+        bestScore = currentScore;
+    }
+
+    if (keyIsDown(SHIFT)) {
+        drawDesign(currentDesign);
+    } else {
+        drawDesign(bestDesign);
+    }
+}
+
+function evolve() {
+    let localScore = Number.NEGATIVE_INFINITY;
+    let localDesign = currentDesign;
+    for (let i = 0; i < numAlternatives; i++) {
+        let alternativeDesign = mutate(currentDesign);
+        drawDesign(alternativeDesign);
+        let alternativeScore = evaluateFitness();
+        if (alternativeScore > localScore) {
+            localDesign = alternativeDesign;
+            localScore = alternativeScore;
+        }
+    }
+    currentDesign = localDesign;
+    currentScore = localScore;
+}
+
+function generate() {
+    let design = [];
+    for (let g = 0; g < genesPerIndividual; g++) {
+        for (let p = 0; p < paramsPerGene; p++) {
+            design.push(0.5);
+        }
+    }
+    return design;
+}
+
+function mutate(design) {
+    let mutant = design.slice();
+    for (let i = 0; i < mutant.length; i++) {
+        mutant[i] = constrain(
+		mutant[i] +
+		randomGaussian(0,mutationAmount),
+		0,
+1);
+    }
+    return mutant;
+}
+
+function drawDesign(design) {
+    noStroke();
+    //background uses last 3 genes
+    background(design[0]*255, design[1]*255, design[2]*255);
+
+    for (let g = 0; g < genesPerIndividual; g++) {
+        let params = design.slice(g*paramsPerGene, (g+1)*paramsPerGene);
+        fill(params[3]*255, params[4]*255, params[5]*255);
+        beginShape();
+        vertex(width, height); //bottom right corner
+        vertex(0,height); //bottom left corner
+        for(let i = 6; i<=paramsPerGene; i++){
+            vertex((i-6)*(width/(paramsPerGene-6)), params[i]*height);
+        }
+
+        endShape(CLOSE);
+    }
+}
+
+
+function evaluateFitness() {
+    loadPixels();
+    let score = 0;
+    for (let p = 0; p < pixels.length; p += 9) {
+        let diff = (pixels[p]-targetImage.pixels[p]);
+        score -= Math.abs(diff);
+    }
+    return score;
+}
+
+
+
+
+</script>
+</head>
+<body>
+</body>
+    <p> Nick Warren - ncwarren - Genetic Algorithm</p>
+<p> When I started the assignment, I went through several different ideas and base pictures, but I always felt like the work I was doing was to get good results for that specific picture. I wanted somehting that could be more general, and also very accurate. So, I started looking at mountain and cityscape sillhouettes. The shape would be simple, several points evenly spread across the canvas, where the heights are a single point in each gene. I started with black and white images, and got very good results. The mountain shapes can be replicated pretty easily. Color became more difficult, as it would regularly climb local maxima with innaccurate results. One improvement to this was having the all height points in the initial generation start at the center of the canvas, rather than randomly. This prevented tall spakes in my shape that would try an replicate sky colors. Ideally my program should work with any mountain or cityscape picture, given the horizon is at the bottom of the photo and there is a reasonable contrast between the sky and objects.</p>
+<img id="ideal" src="mountain.jpg"/>
+</body>
+</html>

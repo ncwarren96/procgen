@@ -1,0 +1,45 @@
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+
+}
+
+.chirp-button {
+    cursor: pointer;
+}
+
+/*
+.chirp-button {
+    background: white;
+    color: black;
+    cursor: pointer;
+    width:fit-content;
+    padding: 0.2em;
+    border: 1px black solid;
+}
+.chirp-button:hover {
+        background: black;
+        color: white;
+        border: 1px black solid;
+}
+.chirp-button:active {
+        background: #FFFFFF;
+        color: #FFFFFF;
+        border: 1px white solid;
+}*/
+
+div#timeline div.chirp{
+        border: 1px grey solid;
+}
+
+.chirp-avatar {
+    font-size:0.8em;
+    font-weight:bold;
+    font-family: sans-serif;
+}
